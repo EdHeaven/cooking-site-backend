@@ -1,21 +1,24 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 export type RecipeDocument = Recipe & Document;
 
 @Schema()
 export class Recipe {
   @Prop({ required: true })
-  title: string;
+  name: string;
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Ingredient' }] }) // изменение типа поля ingredients
+  ingredients: Types.ObjectId[];
 
   @Prop({ required: true })
-  ingredients: string[];
-
-  @Prop({ required: true })
-  instructions: string[];
+  instructions: string;
 
   @Prop()
   imageUrl: string;
+
+  @Prop({ default: 0 }) // изменение типа и добавление значения по умолчанию для likes
+  likes: number;
 }
 
 export const RecipeSchema = SchemaFactory.createForClass(Recipe);
