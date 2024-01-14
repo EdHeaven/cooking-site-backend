@@ -41,7 +41,7 @@ export class RecipesService {
   async findByIngredients(ingredients: string[]): Promise<Recipe[]> {
     try {
       const ingredientObjectIds = ingredients.map((ingredientId) => new Types.ObjectId(ingredientId));
-      return this.recipeModel.find({ ingredients: { $in: ingredientObjectIds } }).exec();
+      return this.recipeModel.find({ ingredients: { $all: ingredientObjectIds } }).exec();
     } catch (error) {
       // Обработка ошибок, например, возвращение пустого массива или логгирование ошибки
       console.error('Error finding recipes by ingredients:', error);
