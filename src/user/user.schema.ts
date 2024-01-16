@@ -8,14 +8,17 @@ export class User extends Document {
   @Prop()
   name: string;
 
-  @Prop()
-  surname: string;
-
   @Prop({ unique: [true, 'Duplicate email entered'] })
   email: string;
 
   @Prop()
   password: string;
+
+  @Prop()
+  verificationCode: string;
+
+  @Prop()
+  isVerified: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
