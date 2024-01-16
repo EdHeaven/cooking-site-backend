@@ -14,7 +14,7 @@ export class Recipe {
   @Prop({ required: true })
   instructions: string;
 
-  @Prop()
+  @Prop({ default: " " })
   imageUrl: string;
 
   @Prop({ default: 0 }) // изменение типа и добавление значения по умолчанию для likes
