@@ -1,7 +1,11 @@
-import { Controller, Get, Param, Post, Body, Put, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, Put, Delete, Query, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { RecipesService } from './recipes.service';
 import { Recipe } from './recipe.schema';
 import { Types } from 'mongoose';
+import { Express } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Multer } from 'multer';
+
 
 @Controller('recipes')
 export class RecipesController {
@@ -22,10 +26,11 @@ export class RecipesController {
   findOne(@Param('id') id: string) {
     return this.recipesService.findOne(id);
   }
-
+  
   @Post()
-  create(@Body() recipe: Recipe) {
-    return this.recipesService.create(recipe);
+  @UseInterceptors(FileInterceptor('image'))
+  create(@Body() recipe: Recipe, @UploadedFile() imageFile: Express.Multer.File) {
+    return this.recipesService.create(recipe, imageFile);
   }
 
   @Put(':id')
