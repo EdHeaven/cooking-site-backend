@@ -109,4 +109,26 @@ export class RecipesService {
       return [];
     }
   }
+
+  async likeRecipe(id: string): Promise<Recipe> {
+    const recipe = await this.recipeModel.findById(id).exec();
+    if (!recipe) {
+      throw new NotFoundException('Рецепт не найден');
+    }
+
+    // Увеличиваем счетчик лайков и сохраняем рецепт
+    recipe.likes += 1;
+    await recipe.save();
+
+    return recipe;
+  }
+
+  async getLikesCount(id: string): Promise<number> {
+    const recipe = await this.recipeModel.findById(id).exec();
+    if (!recipe) {
+      throw new NotFoundException('Рецепт не найден');
+    }
+
+    return recipe.likes;
+  }
 }

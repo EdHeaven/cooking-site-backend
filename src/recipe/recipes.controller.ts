@@ -20,7 +20,18 @@ export class RecipesController {
   searchByIngredients(@Query('ingredients') ingredients: string) {
     const ingredientsArray = ingredients.split(',').map(ingredient => ingredient.trim());
     return this.recipesService.findByIngredients(ingredientsArray);
-  }  
+  }
+  
+  @Post(':id/like')
+  async likeRecipe(@Param('id') id: string): Promise<Recipe> {
+    return this.recipesService.likeRecipe(id);
+  }
+
+  @Get(':id/likes')
+  async getLikesCount(@Param('id') id: string): Promise<{ likes: number }> {
+    const likes = await this.recipesService.getLikesCount(id);
+    return { likes };
+  }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
