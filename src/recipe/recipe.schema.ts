@@ -1,5 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Document } from 'mongoose';
+import { Ingredient } from '../ingredient/ingredient.schema';
+import * as mongoose from 'mongoose';
 
 export type RecipeDocument = Recipe & Document;
 
@@ -8,9 +10,9 @@ export class Recipe {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'Ingredient' }] }) // изменение типа поля ingredients
-  ingredients: Types.ObjectId[];
-
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Ingredient' }] })
+  ingredients: mongoose.Types.ObjectId[] | Ingredient[];
+  
   @Prop({ required: true })
   instructions: string;
 

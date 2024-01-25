@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model, Types, PopulateOptions } from 'mongoose';
 import { Recipe, RecipeDocument } from './recipe.schema';
+import { Ingredient, IngredientDocument } from '../ingredient/ingredient.schema';
 import * as B2 from 'backblaze-b2';
 
 class BackblazeB2Service {
@@ -57,6 +58,7 @@ const backblazeB2Service = new BackblazeB2Service();
 export class RecipesService {
   constructor(
     @InjectModel(Recipe.name) private recipeModel: Model<RecipeDocument>,
+    @InjectModel(Ingredient.name) private ingredientModel: Model<IngredientDocument>,
   ) {}
 
   async findAll(): Promise<Recipe[]> {
@@ -64,7 +66,12 @@ export class RecipesService {
   }
 
   async findOne(id: string): Promise<Recipe | null> {
-    return this.recipeModel.findById(id).exec();
+    const populateOptions: PopulateOptions = {
+      path: 'ingredients',
+      select: 'name',
+    };
+
+    return this.recipeModel.findById(id).populate(populateOptions).exec();
   }
 
   async create(recipe: Recipe, imageFile: Express.Multer.File): Promise<Recipe> {
