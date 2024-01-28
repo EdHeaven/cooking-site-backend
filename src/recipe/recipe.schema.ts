@@ -19,6 +19,9 @@ export class Recipe {
   @Prop({ default: " " })
   imageUrl: string;
 
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] })
+  likedBy: mongoose.Types.ObjectId[];  // Добавлен новый массив
+
   @Prop({ default: 0 }) // изменение типа и добавление значения по умолчанию для likes
   likes: number;
 }

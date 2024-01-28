@@ -1,30 +1,32 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+  import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+  import { Document, Types } from 'mongoose';
 
-@Schema({
-  timestamps: true,
-})
-export class User extends Document {
-  @Prop()
-  name: string;
+  export type UserDocument = User & Document;
 
-  @Prop()
-  surname: string;
+  @Schema({
+    timestamps: true,
+  })
+  export class User extends Document {
+    @Prop()
+    name: string;
 
-  @Prop({ unique: [true, 'Duplicate email entered'] })
-  email: string;
+    @Prop()
+    surname: string;
 
-  @Prop()
-  password: string;
+    @Prop({ unique: [true, 'Duplicate email entered'] })
+    email: string;
 
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'Recipe' }] })
-  favoriteRecipes: Types.ObjectId[];
-  
-  @Prop()
-  isVerified: boolean;
+    @Prop()
+    password: string;
 
-  @Prop()
-  verificationCode: string;
-}
+    @Prop({ type: [{ type: Types.ObjectId, ref: 'Recipe' }] })
+    favoriteRecipes: Types.ObjectId[];
+    
+    @Prop()
+    isVerified: boolean;
 
-export const UserSchema = SchemaFactory.createForClass(User);
+    @Prop()
+    verificationCode: string;
+  }
+
+  export const UserSchema = SchemaFactory.createForClass(User);

@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types, PopulateOptions } from 'mongoose';
 import { Recipe, RecipeDocument } from './recipe.schema';
 import { Ingredient, IngredientDocument } from '../ingredient/ingredient.schema';
+import { User, UserDocument } from '../user/user.schema';
 import * as B2 from 'backblaze-b2';
 
 class BackblazeB2Service {
@@ -59,6 +60,7 @@ export class RecipesService {
   constructor(
     @InjectModel(Recipe.name) private recipeModel: Model<RecipeDocument>,
     @InjectModel(Ingredient.name) private ingredientModel: Model<IngredientDocument>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>, // Добавьте эту строку
   ) {}
 
   async findAll(): Promise<Recipe[]> {
@@ -117,25 +119,49 @@ export class RecipesService {
     }
   }
 
-  async likeRecipe(id: string): Promise<Recipe> {
-    const recipe = await this.recipeModel.findById(id).exec();
-    if (!recipe) {
-      throw new NotFoundException('Рецепт не найден');
+  async likeRecipe(userId: string, recipeId: string): Promise<Recipe> {
+    const user = await this.userModel.findById(userId);
+    const recipe = await this.recipeModel.findById(recipeId);
+  
+    if (!user || !recipe) {
+      throw new NotFoundException('User or Recipe not found');
     }
-
-    // Увеличиваем счетчик лайков и сохраняем рецепт
-    recipe.likes += 1;
-    await recipe.save();
-
+  
+    // Проверка, не поставил ли пользователь лайк ранее
+    if (!recipe.likedBy.includes(user._id)) {
+      recipe.likedBy.push(user._id);
+      recipe.likes += 1;
+      await recipe.save();
+    }
+  
     return recipe;
   }
-
-  async getLikesCount(id: string): Promise<number> {
-    const recipe = await this.recipeModel.findById(id).exec();
-    if (!recipe) {
-      throw new NotFoundException('Рецепт не найден');
+  
+  async unlikeRecipe(userId: string, recipeId: string): Promise<Recipe> {
+    const user = await this.userModel.findById(userId);
+    const recipe = await this.recipeModel.findById(recipeId);
+  
+    if (!user || !recipe) {
+      throw new NotFoundException('User or Recipe not found');
     }
-
+  
+    // Проверка, поставил ли пользователь лайк ранее
+    if (recipe.likedBy.includes(user._id)) {
+      recipe.likedBy = recipe.likedBy.filter((id) => id.toString() !== user._id.toString());
+      recipe.likes -= 1;
+      await recipe.save();
+    }
+  
+    return recipe;
+  }
+  
+  async getLikesCount(recipeId: string): Promise<number> {
+    const recipe = await this.recipeModel.findById(recipeId).exec();
+  
+    if (!recipe) {
+      throw new NotFoundException('Recipe not found');
+    }
+  
     return recipe.likes;
   }
 }

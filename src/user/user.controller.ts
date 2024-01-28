@@ -50,4 +50,12 @@ export class UserController {
     const userId = req.user.id;
     return await this.userService.getFavoriteRecipes(userId);
   }
+
+  @UseGuards(AuthGuard())
+  @Get('/likedRecipes')
+  async getLikedRecipes(@Request() req: any): Promise<{ likedRecipeIds: string[] }> {
+    const userId = req.user.id;
+    const likedRecipeIds = await this.userService.getLikedRecipeIds(userId);
+    return { likedRecipeIds };
+  }
 }

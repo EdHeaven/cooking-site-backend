@@ -1,4 +1,5 @@
-import { Controller, Get, Param, Post, Body, Put, Delete, Query, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, Put, Delete, Query, UseInterceptors, UploadedFile, UseGuards, Request  } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { RecipesService } from './recipes.service';
 import { Recipe } from './recipe.schema';
 import { Types } from 'mongoose';
@@ -22,11 +23,20 @@ export class RecipesController {
     return this.recipesService.findByIngredients(ingredientsArray);
   }
   
-  @Post(':id/like')
-  async likeRecipe(@Param('id') id: string): Promise<Recipe> {
-    return this.recipesService.likeRecipe(id);
+  @UseGuards(AuthGuard())
+  @Put(':id/like')
+  async likeRecipe(@Request() req: any, @Param('id') id: string): Promise<Recipe> {
+    const userId = req.user.id;
+    return this.recipesService.likeRecipe(userId, id);
   }
-
+  
+  @UseGuards(AuthGuard())
+  @Put(':id/unlike')
+  async unlikeRecipe(@Request() req: any, @Param('id') id: string): Promise<Recipe> {
+    const userId = req.user.id;
+    return this.recipesService.unlikeRecipe(userId, id);
+  }
+  
   @Get(':id/likes')
   async getLikesCount(@Param('id') id: string): Promise<{ likes: number }> {
     const likes = await this.recipesService.getLikesCount(id);

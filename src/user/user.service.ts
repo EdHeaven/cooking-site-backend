@@ -103,4 +103,14 @@ export class UserService {
       return [];
     }
   }
+
+  async getLikedRecipeIds(userId: string): Promise<string[]> {
+    try {
+      const likedRecipeIds = await this.recipeModel.distinct('_id', { likedBy: userId }).exec();
+      return likedRecipeIds.map((id) => id.toString());
+    } catch (error) {
+      console.error('Error when retrieving liked recipe IDs:', error);
+      return [];
+    }
+  }
 }
