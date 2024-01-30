@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model, Types, PopulateOptions } from 'mongoose';
 import { User } from '../user/user.schema';
 import { Recipe } from '../recipe/recipe.schema';
 
@@ -79,7 +79,13 @@ export class UserService {
     return {message: "Recipe removed",}
   }
 
-  async getFavoriteRecipes(userId: string): Promise<Recipe[]> {
+  async getFavoriteRecipes(userId: string): Promise<Recipe[] | null> {
+
+    const populateOptions: PopulateOptions = {
+      path: 'ingredients',
+      select: 'name',
+    };
+
     try {
       const user = await this.userModel.findById(userId).exec();
 
@@ -92,7 +98,7 @@ export class UserService {
       // Запрос на получение рецептов по каждому идентификатору
       const favoriteRecipes = await Promise.all(
         favoriteRecipeIds.map(async (recipeId) => {
-          const recipe = await this.recipeModel.findById(recipeId).exec();
+          const recipe = await this.recipeModel.findById(recipeId).populate(populateOptions).exec();
           return recipe;
         })
       );
