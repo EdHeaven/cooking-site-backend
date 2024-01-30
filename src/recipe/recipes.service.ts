@@ -63,8 +63,13 @@ export class RecipesService {
     @InjectModel(User.name) private userModel: Model<UserDocument>, // Добавьте эту строку
   ) {}
 
-  async findAll(): Promise<Recipe[]> {
-    return this.recipeModel.find().exec();
+  async findAll(): Promise<Recipe[] | null> {
+    const populateOptions: PopulateOptions = {
+      path: 'ingredients',
+      select: 'name',
+    };
+
+    return this.recipeModel.find().populate(populateOptions).exec();
   }
 
   async findOne(id: string): Promise<Recipe | null> {
@@ -108,10 +113,15 @@ export class RecipesService {
     return deletedRecipe as Recipe;
   }
   
-  async findByIngredients(ingredients: string[]): Promise<Recipe[]> {
+  async findByIngredients(ingredients: string[]): Promise<Recipe[] | null> {
+    const populateOptions: PopulateOptions = {
+      path: 'ingredients',
+      select: 'name',
+    };
+
     try {
       const ingredientObjectIds = ingredients.map((ingredientId) => new Types.ObjectId(ingredientId));
-      return this.recipeModel.find({ ingredients: { $all: ingredientObjectIds } }).exec();
+      return this.recipeModel.find({ ingredients: { $all: ingredientObjectIds } }).populate(populateOptions).exec();
     } catch (error) {
       // Обработка ошибок, например, возвращение пустого массива или логгирование ошибки
       console.error('Error finding recipes by ingredients:', error);
