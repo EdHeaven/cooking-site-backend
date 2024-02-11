@@ -81,10 +81,11 @@ export class UserService {
 
   async getFavoriteRecipes(userId: string): Promise<Recipe[] | null> {
 
-    const populateOptions: PopulateOptions = {
-      path: 'ingredients',
-      select: 'name',
-    };
+    const populateOptions: PopulateOptions[] = [
+      { path: 'ingredients', select: 'name' },
+      { path: 'createdBy', select: 'name surname role' },
+      { path: 'cuisine', select: 'name' },
+    ];
 
     try {
       const user = await this.userModel.findById(userId).exec();

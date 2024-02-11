@@ -19,6 +19,9 @@
     @Prop()
     password: string;
 
+    @Prop({ default: 'user' }) // Роль пользователя по умолчанию - 'user'
+    role: string;
+
     @Prop({ type: [{ type: Types.ObjectId, ref: 'Recipe' }] })
     favoriteRecipes: Types.ObjectId[];
     

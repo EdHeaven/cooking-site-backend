@@ -5,6 +5,7 @@ import { RecipesService } from './recipes.service';
 import { Recipe, RecipeSchema } from './recipe.schema';
 import { Ingredient, IngredientSchema } from '../ingredient/ingredient.schema';
 import { User, UserSchema } from '../user/user.schema'
+import { Cuisine, CuisineSchema } from 'src/cuisine/cusine.schema';
 import { AuthModule } from '../auth/auth.module';
 
 @Module({
@@ -12,6 +13,7 @@ import { AuthModule } from '../auth/auth.module';
     MongooseModule.forFeature([{ name: Recipe.name, schema: RecipeSchema }]),
     MongooseModule.forFeature([{ name: Ingredient.name, schema: IngredientSchema }]),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([{ name: Cuisine.name, schema: CuisineSchema}]),
     AuthModule,
   ],
   controllers: [RecipesController],

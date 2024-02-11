@@ -18,7 +18,7 @@ export class AuthService {
   ) {}
 
   async signUp(signUpDto: SignUpDto): Promise<{ message: string, statusCode: number, token?: string }> {
-    const { name, email, password } = signUpDto;
+    const { name, surname, email, password } = signUpDto;
     const existingUser = await this.userModel.findOne({ email });
   
     if (existingUser) {
@@ -32,6 +32,7 @@ export class AuthService {
       const hashedPassword = await bcrypt.hash(password, 10);
   
       existingUser.name = name;
+      existingUser.surname = surname;
       existingUser.password = hashedPassword;
       existingUser.verificationCode = verificationCode;
       existingUser.isVerified = false;
@@ -51,6 +52,7 @@ export class AuthService {
     try {
       const user = await this.userModel.create({
         name,
+        surname,
         email,
         password: hashedPassword,
         verificationCode,

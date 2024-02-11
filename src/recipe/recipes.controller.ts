@@ -48,10 +48,12 @@ export class RecipesController {
     return this.recipesService.findOne(id);
   }
   
+  @UseGuards(AuthGuard())
   @Post()
   @UseInterceptors(FileInterceptor('image'))
-  create(@Body() recipe: Recipe, @UploadedFile() imageFile: Express.Multer.File) {
-    return this.recipesService.create(recipe, imageFile);
+  create(@Request() req: any, @Body() recipe: Recipe, @UploadedFile() imageFile: Express.Multer.File) {
+    const userId = req.user.id;
+    return this.recipesService.create(userId, recipe, imageFile);
   }
 
   @Put(':id')

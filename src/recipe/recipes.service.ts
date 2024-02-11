@@ -4,6 +4,7 @@ import { Model, Types, PopulateOptions } from 'mongoose';
 import { Recipe, RecipeDocument } from './recipe.schema';
 import { Ingredient, IngredientDocument } from '../ingredient/ingredient.schema';
 import { User, UserDocument } from '../user/user.schema';
+import { Cuisine, CuisineDocument } from "../cuisine/cusine.schema"
 import * as B2 from 'backblaze-b2';
 
 class BackblazeB2Service {
@@ -60,28 +61,37 @@ export class RecipesService {
   constructor(
     @InjectModel(Recipe.name) private recipeModel: Model<RecipeDocument>,
     @InjectModel(Ingredient.name) private ingredientModel: Model<IngredientDocument>,
-    @InjectModel(User.name) private userModel: Model<UserDocument>, // Добавьте эту строку
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel(Cuisine.name) private cuisineModel: Model<CuisineDocument>,
   ) {}
 
   async findAll(): Promise<Recipe[] | null> {
-    const populateOptions: PopulateOptions = {
-      path: 'ingredients',
-      select: 'name',
-    };
+    const populateOptions: PopulateOptions[] = [
+      { path: 'ingredients', select: 'name' },
+      { path: 'createdBy', select: 'name surname role' },
+      { path: 'cuisine', select: 'name' },
+    ];
 
     return this.recipeModel.find().populate(populateOptions).exec();
   }
 
   async findOne(id: string): Promise<Recipe | null> {
-    const populateOptions: PopulateOptions = {
-      path: 'ingredients',
-      select: 'name',
-    };
+    const populateOptions: PopulateOptions[] = [
+      { path: 'ingredients', select: 'name' },
+      { path: 'createdBy', select: 'name surname role' },
+      { path: 'cuisine', select: 'name' },
+    ];
 
     return this.recipeModel.findById(id).populate(populateOptions).exec();
   }
 
-  async create(recipe: Recipe, imageFile: Express.Multer.File): Promise<Recipe> {
+  async create(userId: string, recipe: Recipe, imageFile: Express.Multer.File): Promise<Recipe> {
+    const user = await this.userModel.findById(userId);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
     if (imageFile) {
       try {
         const imageUrl = await backblazeB2Service.uploadFile(imageFile.buffer, imageFile.originalname);
@@ -91,7 +101,8 @@ export class RecipesService {
         throw new Error('Failed to upload file to Backblaze B2');
       }
     }
-    
+
+    recipe.createdBy = user._id;
     const createdRecipe = new this.recipeModel(recipe);
     return createdRecipe.save();
   }
@@ -114,10 +125,11 @@ export class RecipesService {
   }
   
   async findByIngredients(ingredients: string[]): Promise<Recipe[] | null> {
-    const populateOptions: PopulateOptions = {
-      path: 'ingredients',
-      select: 'name',
-    };
+    const populateOptions: PopulateOptions[] = [
+      { path: 'ingredients', select: 'name' },
+      { path: 'createdBy', select: 'name surname role' },
+      { path: 'cuisine', select: 'name' },
+    ];
 
     try {
       const ingredientObjectIds = ingredients.map((ingredientId) => new Types.ObjectId(ingredientId));
